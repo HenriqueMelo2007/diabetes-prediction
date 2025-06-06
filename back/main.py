@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 import joblib
@@ -7,6 +8,14 @@ import numpy
 model = joblib.load("../mlmodel/ml_model_random_forest_diabetes.pkl")
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins="*",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class BodyRequest(BaseModel):
@@ -42,3 +51,7 @@ def prediction(data: BodyRequest):
     prediction = model.predict(numpy_data_array)
 
     return {"prediction": int(prediction[0])}
+
+@app.get("/")
+def connection():
+    return {"connection": "connected"}
